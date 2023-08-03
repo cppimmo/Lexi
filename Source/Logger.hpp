@@ -59,6 +59,8 @@ namespace Lexi
 		std::ostream m_errStream; //!< Error output stream
 	public:
 		Logger(void);
+		//! Initialize logger with the given XML configuration.
+		void Init(tinyxml2::XMLElement *pRoot);
 		//! Enable log output.
 		bool Enable(void) noexcept;
 		//! Disable log output.
@@ -92,9 +94,13 @@ namespace Lexi
 
 	template <typename... Args>
 	std::ostream &Logger::Write(Level level, std::string_view format, Args&&... args)
-	{
+	{		
 		std::ostream &outStream = GetLevelStream(level);
-
+		if (!m_bEnabled)
+		{
+			return outStream;
+		}
+		
 		std::ostringstream outStrStream;
 		if (m_bWrapLines)
 		{

@@ -32,7 +32,7 @@
 #include "Logger.hpp"
 
 using Lexi::Logger;
-// Initialize class static class instance:
+// Initialize static class instance:
 Lexi::UniqueLoggerPtr Logger::s_pInstance;
 
 Logger::Logger(void)
@@ -43,6 +43,52 @@ Logger::Logger(void)
 	  m_logStream(std::clog.rdbuf()),
 	  m_errStream(std::cerr.rdbuf())
 {
+}
+
+void Logger::Init(tinyxml2::XMLElement *pRoot)
+{
+	for (auto *pNode = pRoot->FirstChildElement(); pNode; pNode = pNode->NextSiblingElement())
+	{
+		const std::string kName = pNode->Name();
+
+		if (kName == "Enabled")
+		{
+			m_bEnabled = pNode->BoolAttribute("value");
+		}
+		else if (kName == "WrapLines")
+		{
+			m_bWrapLines = pNode->BoolAttribute("value");
+		}
+		else if (kName == "WrapCount")
+		{
+			m_wrapCount = pNode->IntAttribute("value", kDEFAULT_WRAP_COUNT);
+		}
+		else if (kName == "Stream")
+		{
+			const std::string kLevelName = pNode->Attribute("level");
+			const bool kbShowDate = pNode->BoolAttribute("showDate");
+			bool bFilenameSet = true;
+			const std::string kFilename = pNode->Attribute("filename");
+			if (kFilename.empty())
+			{
+				bFilenameSet = false;
+			}
+			
+			if (kLevelName == "Message")
+			{
+				//RedirectLevelTo(Level::Msg, kFilename);
+			}
+			else if (kLevelName == "Log")
+			{
+				//RedirectLevelTo(Level::Log, kFilename);
+			}
+			else if (kLevelName == "Error")
+			{
+				//RedirectLevelTo(Level::Err, kFilename);
+			}
+		}
+		//const std::string kName = pElem->Attribute();
+	}
 }
 
 bool Logger::Enable(void) noexcept

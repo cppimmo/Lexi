@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Config>
+  <ProgramName>Lexi</ProgramName>
+  <Description>Placeholder text.</Description>
+  <LongDescription>Placeholder text.</LongDescription>
+  <Logging>
+	<Enabled value="true"/>
+	<WrapLines vaue="true"/>
+	<WrapCount value="72"/>
+	<Stream level="Message" showDate="true" filename="lexi_config.txt"/>
+	<Stream level="Log" showDate="true" filename="lexi_config.txt"/>
+	<Stream level="Error" showDate="true" filename="lexi_config.txt"/>
+  </Logging>
+</Config>

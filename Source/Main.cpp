@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 
 using namespace Lexi;
+using namespace tinyxml2;
 
 static void Click(GtkWidget *pWidget, gpointer pUserData)
 {
@@ -59,10 +60,22 @@ int main(int numArgs, char *pArgs[]) try
 	//std::ofstream outFile(Logger::Get().GetSystemTime(true).value() + "_lexi_log.txt");
 	//Logger::Get().RedirectLevelTo(Logger::Level::Msg, outFile);
 	//Logger::Get().RedirectLevelTo(Logger::Level::Err, outFile);
+	XMLDocument xmlDoc;
+	XMLError xmlResult = xmlDoc.LoadFile("Config.xml");
+	LEXI_THROW_IF(xmlResult != XML_SUCCESS, "Couldn't load the config file!");
 	
-	Logger::Get().SetWrapCount(72);
-	LEXI_MSG("Starting application...");
+	XMLElement *pRootElem = xmlDoc.RootElement();
+	LEXI_THROW_IF(!pRootElem, "No root config element!");
 
+	Config::Get().Load(pRootElem);
+	Logger::Get().Init(pRootElem->FirstChildElement("Logging"));
+	
+	LEXI_LOG("Starting application...");
+	
+	LEXI_LOG("Program name: {}", Config::Get().GetProgramName());
+	LEXI_LOG("Description: {}", Config::Get().GetDescription());
+	LEXI_LOG("Long description: {}", Config::Get().GetLongDescription());
+	
 	LEXI_ERR("Uh oh error!");
 
 	GtkApplication *pApp = nullptr;
@@ -75,7 +88,7 @@ int main(int numArgs, char *pArgs[]) try
 	status = g_application_run(G_APPLICATION(pApp), numArgs, pArgs);
 	g_object_unref(pApp);
 	
-	LEXI_MSG("Quitting application...");
+	LEXI_LOG("Quitting application...");
 	//LEXI_THROW("Uh oh.");
 	//return status;
 	return 0;

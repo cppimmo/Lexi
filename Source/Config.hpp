@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.hpp
+ * @file   Config.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Application configuration.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,53 +28,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_LEXISTD_HPP
-#define LEXI_LEXISTD_HPP
+#ifndef LEXI_CONFIG_HPP
+#define LEXI_CONFIG_HPP
 
-// Common library headers:
-#include <tinyxml2.h>
-// Common standard library headers:
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <format>
-#include <memory>
-#include <new>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <list>
-#include <map>
-#include <span>
-#include <type_traits>
-#include <concepts>
-#include <numeric>
-#include <numbers>
-#include <limits>
-#include <algorithm>
-#include <compare>
-#include <chrono>
-#include <ratio>
-#include <exception>
-#include <source_location>
-// Common project headers:
-#include "Utils.hpp"
-#include "Exception.hpp"
-#include "Logger.hpp"
-#include "Config.hpp"
-
-//! Primary namespace.
 namespace Lexi
 {
+	class Config;
+	LEXI_DECLARE_PTR(Config);
+	
+	class Config
+	{
+		static UniqueConfigPtr s_pInstance; //!< Singleton instance
 
-} // End namespace (Lexi)
+		std::string m_programName;
+		std::string m_description;
+		std::string m_longDesc;
+	public:
+		Config(void);
+		//! Load configuration from XML document.
+		void Load(tinyxml2::XMLElement *pRoot);
+		// Accessors:
+		//! Retrieve singleton instance.
+		static Config &Get(void);
+		const std::string &GetProgramName(void) const;
+		const std::string &GetDescription(void) const;
+		const std::string &GetLongDescription(void) const;
+	};
+}
 
-#endif /* !LEXI_LEXISTD_HPP */
+#endif /* !LEXI_CONFIG_HPP */

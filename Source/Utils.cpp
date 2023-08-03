@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.cpp
+ * @file   Utils.cpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Utility types & functions.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -29,4 +29,5 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 #include "LexiStd.hpp"
+#include "Utils.hpp"
 

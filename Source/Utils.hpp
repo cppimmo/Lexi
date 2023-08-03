@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.cpp
+ * @file   Utils.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Utility types & functions.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,5 +28,49 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#include "LexiStd.hpp"
+#ifndef LEXI_UTILS_HPP
+#define LEXI_UTILS_HPP
 
+// Useful macros:
+#if defined(_DEBUG) // Only on Windows IIRC
+#define LEXI_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__) // Use overloaded debug new operator
+#else
+#define LEXI_NEW new
+#endif
+
+#ifndef SAFE_DELETE
+#define SAFE_DELETE(X) if (X) { delete X; X = nullptr; }
+#endif
+
+#ifndef SAFE_DELETE_ARRAY
+#define SAFE_DELETE_ARRAY(X) if (X) { delete[] X; X = nullptr; }
+#endif
+
+#define LEXI_DECLARE_PTR(TYPE) \
+	using Unique ## TYPE ## Ptr = std::unique_ptr<TYPE>; \
+	using Strong ## TYPE ## Ptr = std::shared_ptr<TYPE>; \
+	using Weak ## TYPE ## Ptr = std::weak_ptr<TYPE>; \
+
+namespace Lexi
+{
+	//! Interface for non-copyable class types.
+	class INonCopyable
+	{
+	public:
+		INonCopyable(void) = default;
+		INonCopyable(const INonCopyable &) = delete;
+		INonCopyable &operator=(const INonCopyable &) = delete;
+		virtual ~INonCopyable(void) = default;
+	};
+	//! Interface for non-moveable class types.
+	class INonMoveable
+	{
+	public:
+		INonMoveable(void) = default;
+		INonMoveable(INonMoveable &&) = delete;
+		INonMoveable &operator=(INonMoveable &&) = delete;
+		virtual ~INonMoveable(void) = default;
+	};
+} // End namespace (Lexi)
+
+#endif /* !LEXI_UTILS_HPP */

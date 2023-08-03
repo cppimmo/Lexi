@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   Main.hpp
+ * @file   Exception.cpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Application entry point.
+ * @brief  Base exeception.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -29,63 +29,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 #include "LexiStd.hpp"
+#include "Exception.hpp"
 
-#include <gtk/gtk.h>
+using Lexi::Exception;
 
-using namespace Lexi;
-
-static void Click(GtkWidget *pWidget, gpointer pUserData)
+Exception::Exception(std::string_view message, std::string_view filename, std::string_view functionName,
+					 std::size_t lineNum)
+	: m_message(message),
+	  m_filename(filename),
+	  m_functionName(functionName),
+	  m_lineNum(lineNum)
 {
-	LEXI_MSG("Button clicked!");
 }
 
-static void Activate(GtkApplication *pApp,
-					 gpointer pUserData)
+std::string_view Exception::VWhat(void) const noexcept
 {
-	GtkWidget *pWindow = gtk_application_window_new(pApp);
-
-	gtk_window_set_title(GTK_WINDOW(pWindow), "sample_doc.lexi - Lexi");
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 800, 600);
-
-	GtkWidget *pButton = gtk_button_new_with_label("Hello, world!");
-	g_signal_connect(pButton, "clicked", G_CALLBACK(Click), NULL);
-	gtk_window_set_child(GTK_WINDOW(pWindow), pButton);
-	
-	gtk_window_present(GTK_WINDOW(pWindow));
+	return m_message;
 }
 
-int main(int numArgs, char *pArgs[]) try
+std::string_view Exception::VType(void) const noexcept
 {
-	//std::ofstream outFile(Logger::Get().GetSystemTime(true).value() + "_lexi_log.txt");
-	//Logger::Get().RedirectLevelTo(Logger::Level::Msg, outFile);
-	//Logger::Get().RedirectLevelTo(Logger::Level::Err, outFile);
-	
-	Logger::Get().SetWrapCount(72);
-	LEXI_MSG("Starting application...");
-
-	LEXI_ERR("Uh oh error!");
-
-	GtkApplication *pApp = nullptr;
-	int status = EXIT_SUCCESS;
-
-	pApp = gtk_application_new("lexi",
-							   G_APPLICATION_DEFAULT_FLAGS);
-	g_signal_connect(pApp, "activate",
-					 G_CALLBACK(Activate), NULL);
-	status = g_application_run(G_APPLICATION(pApp), numArgs, pArgs);
-	g_object_unref(pApp);
-	
-	LEXI_MSG("Quitting application...");
-	//LEXI_THROW("Uh oh.");
-	//return status;
-	return 0;
+	return "Exception";
 }
-catch (const Exception &kExcept)
+
+std::string_view Exception::GetFunctionName(void) const noexcept
 {
-	std::cerr << "Exception occured: " << kExcept.VWhat() << '\n';
+	return m_functionName;
 }
-catch (const std::exception &kExcept)
+
+std::string_view Exception::GetFilename(void) const noexcept
 {
-	std::cerr << "Exception occured: " << kExcept.what() << '\n';
+	return m_filename;
+}
+
+std::size_t Exception::GetLineNum(void) const noexcept
+{
+	return m_lineNum;
 }
 

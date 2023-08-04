@@ -55,28 +55,24 @@ static void Activate(GtkApplication *pApp,
 	gtk_window_present(GTK_WINDOW(pWindow));
 }
 
+static XMLElement *LoadConfig(XMLDocument &xmlDoc);
+
 int main(int numArgs, char *pArgs[]) try
 {
 	//std::ofstream outFile(Logger::Get().GetSystemTime(true).value() + "_lexi_log.txt");
 	//Logger::Get().RedirectLevelTo(Logger::Level::Msg, outFile);
 	//Logger::Get().RedirectLevelTo(Logger::Level::Err, outFile);
 	XMLDocument xmlDoc;
-	XMLError xmlResult = xmlDoc.LoadFile("Config.xml");
-	LEXI_THROW_IF(xmlResult != XML_SUCCESS, "Couldn't load the config file!");
+	auto *pRoot = LoadConfig(xmlDoc);
 	
-	XMLElement *pRootElem = xmlDoc.RootElement();
-	LEXI_THROW_IF(!pRootElem, "No root config element!");
-
-	Config::Get().Load(pRootElem);
-	Logger::Get().Init(pRootElem->FirstChildElement("Logging"));
+	Config::Get().Load(pRoot);
+	Logger::Get().Init(pRoot->FirstChildElement("Logging"));
 	
 	LEXI_LOG("Starting application...");
 	
 	LEXI_LOG("Program name: {}", Config::Get().GetProgramName());
 	LEXI_LOG("Description: {}", Config::Get().GetDescription());
 	LEXI_LOG("Long description: {}", Config::Get().GetLongDescription());
-	
-	LEXI_ERR("Uh oh error!");
 
 	GtkApplication *pApp = nullptr;
 	int status = EXIT_SUCCESS;
@@ -87,18 +83,27 @@ int main(int numArgs, char *pArgs[]) try
 					 G_CALLBACK(Activate), NULL);
 	status = g_application_run(G_APPLICATION(pApp), numArgs, pArgs);
 	g_object_unref(pApp);
+
+	Config::Get().Save(pRoot);
 	
 	LEXI_LOG("Quitting application...");
-	//LEXI_THROW("Uh oh.");
-	//return status;
-	return 0;
+	return status;
 }
 catch (const Exception &kExcept)
 {
-	std::cerr << "Exception occured: " << kExcept.VWhat() << '\n';
+	LEXI_ERR("Exception occured: {}", kExcept.VWhat());
 }
 catch (const std::exception &kExcept)
 {
-	std::cerr << "Exception occured: " << kExcept.what() << '\n';
+	LEXI_ERR("Exception occured: {}", kExcept.what());
 }
 
+XMLElement *LoadConfig(XMLDocument &xmlDoc)
+{
+	XMLError xmlResult = xmlDoc.LoadFile("Config.xml");
+	LEXI_THROW_IF(xmlResult != XML_SUCCESS, "Couldn't load the config file!");
+	
+	XMLElement *pRoot = xmlDoc.RootElement();
+	LEXI_THROW_IF(!pRoot, "No root config element!");
+	return pRoot;
+}

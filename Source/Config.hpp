@@ -35,8 +35,11 @@ namespace Lexi
 {
 	class Config;
 	LEXI_DECLARE_PTR(Config);
-	
-	class Config
+
+	/**
+	 * Configuration manager singleton.
+	 */
+	class Config final : public INonCopyable, public INonMoveable
 	{
 		static UniqueConfigPtr s_pInstance; //!< Singleton instance
 
@@ -47,6 +50,8 @@ namespace Lexi
 		Config(void);
 		//! Load configuration from XML document.
 		void Load(tinyxml2::XMLElement *pRoot);
+		//! Save configuration changes to XML document.
+		void Save(tinyxml2::XMLElement *pRoot);
 		// Accessors:
 		//! Retrieve singleton instance.
 		static Config &Get(void);

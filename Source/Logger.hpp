@@ -36,15 +36,17 @@ namespace Lexi
 	class Logger;
 	LEXI_DECLARE_PTR(Logger);
 	
-	//! Logger singleton.
+	/**
+	 * Logger singleton.
+	 */
 	class Logger final : public INonCopyable, public INonMoveable
 	{
 	public:
 		enum struct Level
 		{
-			Msg,
-			Log,
-			Err
+			Msg, /**< Level for user messages */
+			Log, /**< Level for debug messages */
+			Err  /**< Level for error messages */
 		};
 	private:
 		static constexpr std::size_t kDEFAULT_WRAP_COUNT = 80; //!< Default line wrap count

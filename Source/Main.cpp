@@ -112,7 +112,7 @@ int main(int numArgs, char *pArgs[]) try
 }
 catch (const Exception &kExcept)
 {
-	LEXI_ERR("Exception occured: {}", kExcept.VWhat());
+	LEXI_ERR("Exception occured({}:{}): {}", kExcept.GetFilename(), kExcept.GetLineNum(), kExcept.VWhat());
 }
 catch (const std::exception &kExcept)
 {

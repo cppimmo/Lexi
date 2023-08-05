@@ -67,6 +67,7 @@
 #include <exception>
 #include <source_location>
 #include <mutex>
+#include <filesystem>
 // Common project headers:
 #include "Utils/Types.hpp"
 #include "Utils/Interfaces.hpp"

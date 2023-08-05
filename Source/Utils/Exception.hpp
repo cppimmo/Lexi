@@ -38,11 +38,11 @@ namespace Lexi
 	*/
 	class Exception : public std::exception
 	{   // Not necessary to access from sub-classes:
-		std::string_view m_filename;
-		std::string_view m_functionName;
+		std::string m_filename;
+		std::string m_functionName;
 		std::size_t m_lineNum;
 	protected:
-		mutable std::string_view m_message;
+		mutable std::string m_message;
 	public: // Constructor & default special member functions.
 		Exception(std::string_view message, std::string_view filename,
 				  std::string_view functionName, std::size_t lineNum);
@@ -66,7 +66,8 @@ namespace Lexi
 do \
 { \
 	const auto kSourceLoc = std::source_location::current(); \
-	throw Lexi::Exception(MSG, kSourceLoc.file_name(), kSourceLoc.function_name(), kSourceLoc.line()); \
+	std::filesystem::path kPath(kSourceLoc.file_name()); \
+	throw Lexi::Exception(MSG, kPath.filename().string(), kSourceLoc.function_name(), kSourceLoc.line()); \
 } \
 while (0) \
 
@@ -76,7 +77,8 @@ do \
 	if (COND) \
 	{ \
 		const auto kSourceLoc = std::source_location::current(); \
-		throw Lexi::Exception(MSG, kSourceLoc.file_name(), kSourceLoc.function_name(), kSourceLoc.line()); \
+		std::filesystem::path kPath(kSourceLoc.file_name()); \
+		throw Lexi::Exception(MSG, kPath.filename().string(), kSourceLoc.function_name(), kSourceLoc.line()); \
 	} \
 } \
 while (0) \

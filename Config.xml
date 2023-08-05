@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Config>
   <ProgramName>Lexi</ProgramName>
-  <Description>Placeholder text.</Description>
-  <LongDescription>Placeholder text.</LongDescription>
+  <Description>Lexi document editor.</Description>
+  <LongDescription>C++ implementation of the Lexi WYSIWYG document editor from Design Patterns by Gamma, et al.</LongDescription>
+  <!--
+	The currently used operating system.
+	Possible values include:
+	  Linux
+	  Windows
+	  MacOS
+	  FreeBSD
+  -->
+  <OperatingSystem>Linux</OperatingSystem>
+  <!-- User options -->
+  <User>
+	<SaveAutomatically value="true"/>
+  </User>
   <Logging>
 	<Enabled value="true"/>
 	<WrapLines vaue="true"/>

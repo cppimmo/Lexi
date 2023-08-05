@@ -33,8 +33,15 @@
 
 using Lexi::Config;
 using namespace tinyxml2;
-// Initialize static class instance:
+// Declare/initialize static class members:
 Lexi::UniqueConfigPtr Config::s_pInstance;
+std::mutex Config::s_mutex;
+std::unordered_map<std::string_view, Config::OperatingSystem> Config::s_systems = {
+	{ "Linux", Config::OperatingSystem::kLinux },
+	{ "Windows", Config::OperatingSystem::kWindows },
+	{ "MacOS", Config::OperatingSystem::kMacOS },
+	{ "FreeBSD", Config::OperatingSystem::kFreeBSD },
+};
 
 Config::Config(void)
 {
@@ -58,6 +65,10 @@ void Config::Load(XMLElement *pRoot)
 		{
 			m_longDesc = pNode->GetText();
 		}
+		else if (kName == "OperatingSystem")
+		{
+			m_operatingSystem = StringToOperatingSystem(pNode->GetText());
+		}
 	}
 }
 
@@ -67,12 +78,11 @@ void Config::Save(XMLElement *pRoot)
 
 Config &Config::Get(void)
 {
-	static bool c_bInitialized = false;
-	
-	if (!c_bInitialized)
+	// Uses RAII to unlock after destruction.
+	std::lock_guard<std::mutex> lockGuard(s_mutex);
+	if (!s_pInstance)
 	{
-		s_pInstance = std::make_unique<Config>();
-		c_bInitialized = true;
+		s_pInstance = std::unique_ptr<Config>(LEXI_NEW Config);
 	}
 
 	return *s_pInstance.get();
@@ -93,3 +103,20 @@ const std::string &Config::GetLongDescription(void) const
 	return m_longDesc;
 }
 
+Config::OperatingSystem Config::GetOperatingSystem(void) const noexcept
+{
+	return m_operatingSystem;
+}
+
+Config::OperatingSystem Config::StringToOperatingSystem(std::string_view system)
+{
+	auto iter = s_systems.find(system);
+	if (iter != s_systems.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		LEXI_THROW("Unsupported operating system!");
+	}
+}

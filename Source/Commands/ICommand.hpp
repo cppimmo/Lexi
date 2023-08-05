@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.hpp
+ * @file   ICommand.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Command interface for issuing requests.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,60 +28,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_LEXISTD_HPP
-#define LEXI_LEXISTD_HPP
+#ifndef LEXI_ICOMMAND_HPP
+#define LEXI_ICOMMAND_HPP
 
-// Common library headers:
-#include <tinyxml2.h>
-// Common standard library headers:
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <format>
-#include <memory>
-#include <new>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <list>
-#include <map>
-#include <unordered_map>
-#include <span>
-#include <type_traits>
-#include <concepts>
-#include <numeric>
-#include <numbers>
-#include <limits>
-#include <algorithm>
-#include <compare>
-#include <chrono>
-#include <ratio>
-#include <exception>
-#include <source_location>
-#include <mutex>
-// Common project headers:
-#include "Utils/Types.hpp"
-#include "Utils/Interfaces.hpp"
-#include "Utils/Templates.hpp"
-#include "Utils/Utils.hpp"
-#include "Utils/Exception.hpp"
-#include "Utils/Logger.hpp"
-#include "Utils/Config.hpp"
-// All project headers:
-#include "Commands/ICommand.hpp"
-#include "Commands/QuitCommand.hpp"
-
-//! Primary namespace.
 namespace Lexi
 {
+	//! Execution result enumeration.
+	enum struct CommandResult
+	{
+		kSuccess = 0,
+		kFailure
+	};
+	
+	/**
+	 * Command interface that encapsulates user requests.
+	 */
+	class ICommand
+	{
+	public:
+		virtual ~ICommand(void) = default;
+		//! Perform or redo a command.
+		virtual CommandResult VExecute(void) = 0;
+		//! Undo a previously executed command.
+		virtual CommandResult VUnexecute(void) = 0;
+		//! Determine whether or not a command can be undone.
+		virtual bool VIsReversible(void) const = 0;
+	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_LEXISTD_HPP */
+#endif /* !LEXI_ICOMMAND_HPP */

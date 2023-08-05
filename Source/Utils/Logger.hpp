@@ -44,15 +44,16 @@ namespace Lexi
 	public:
 		enum struct Level
 		{
-			Msg, /**< Level for user messages */
-			Log, /**< Level for debug messages */
-			Err  /**< Level for error messages */
+			kMessage, /**< Level for user messages */
+			kLog, /**< Level for debug messages */
+			kError /**< Level for error messages */
 		};
 	private:
 		static constexpr std::size_t kDEFAULT_WRAP_COUNT = 80; //!< Default line wrap count
-		
-		static UniqueLoggerPtr s_pInstance; //!< Singleton instance
 
+		static UniqueLoggerPtr s_pInstance; //!< Singleton instance
+		static std::mutex s_mutex;
+		
 		bool m_bEnabled; //!< Whether or not log output is enabled
 		bool m_bWrapLines; //!< Whether or not lines will be wrapped at m_wrapCount
 		std::size_t m_wrapCount; //!< Number of columns before newline
@@ -60,7 +61,6 @@ namespace Lexi
 		std::ostream m_logStream; //!< Logging output stream
 		std::ostream m_errStream; //!< Error output stream
 	public:
-		Logger(void);
 		//! Initialize logger with the given XML configuration.
 		void Init(tinyxml2::XMLElement *pRoot);
 		//! Enable log output.
@@ -88,6 +88,9 @@ namespace Lexi
 		void SetWrapLines(bool bWrapLines) noexcept;
 		void SetWrapCount(std::size_t wrapCount) noexcept;
 	private:
+		// Hide constructor so instances cannot be created directly.
+		Logger(void);
+
 		static constexpr std::string_view GetLevelString(Level level) noexcept;
 
 		std::ostream &GetLevelStream(Level level);
@@ -95,7 +98,7 @@ namespace Lexi
 	};
 
 	template <typename... Args>
-	std::ostream &Logger::Write(Level level, std::string_view format, Args&&... args)
+	inline std::ostream &Logger::Write(Level level, std::string_view format, Args&&... args)
 	{		
 		std::ostream &outStream = GetLevelStream(level);
 		if (!m_bEnabled)
@@ -123,24 +126,25 @@ namespace Lexi
 	}
 	
 	template <typename... Args>	
-	std::ostream &Logger::Writeln(Level level, std::string_view format, Args&&... args)
+	inline std::ostream &Logger::Writeln(Level level, std::string_view format, Args&&... args)
 	{
 		// std::forward<Args>(args...);
 		return Write(level, format, args...) << '\n';
 	}
 
-	constexpr std::string_view Logger::GetLevelString(Level level) noexcept
+	inline constexpr std::string_view Logger::GetLevelString(Level level) noexcept
 	{
 		switch (level)
 		{
-		case Level::Msg:
+		case Level::kMessage:
 			return "MESSAGE";
-		case Level::Log:
+		case Level::kLog:
 			return "LOG";
-		case Level::Err:
+		case Level::kError:
 			return "ERROR";
+		default:
+			return "UNKNOWN";
 		}
-		return "UNKNOWN";
 	}
 } // End namespace (Lexi)
 
@@ -148,7 +152,7 @@ namespace Lexi
 do \
 { \
 	using Lexi::Logger; \
-	Logger::Get().Writeln(Logger::Level::Msg, __VA_ARGS__); \
+	Logger::Get().Writeln(Logger::Level::kMessage, __VA_ARGS__); \
 } \
 while (0) \
 
@@ -156,7 +160,7 @@ while (0) \
 do \
 { \
 	using Lexi::Logger; \
-	Logger::Get().Writeln(Logger::Level::Log, __VA_ARGS__); \
+	Logger::Get().Writeln(Logger::Level::kLog, __VA_ARGS__); \
 } \
 while (0) \
 
@@ -164,7 +168,7 @@ while (0) \
 do \
 { \
 	using Lexi::Logger; \
-	Logger::Get().Writeln(Logger::Level::Err, __VA_ARGS__); \
+	Logger::Get().Writeln(Logger::Level::kError, __VA_ARGS__); \
 } \
 while (0) \
 
@@ -174,7 +178,7 @@ do \
 	if (COND) \
 	{ \
 		using Lexi::Logger; \
-		Logger::Get().Writeln(Logger::Level::Msg, __VA_ARGS__); \
+		Logger::Get().Writeln(Logger::Level::kMessage, __VA_ARGS__); \
 	} \
 } \
 while (0) \
@@ -185,7 +189,7 @@ do \
 	if (COND) \
 	{ \
 		using Lexi::Logger; \
-		Logger::Get().Writeln(Logger::Level::Log, __VA_ARGS__); \
+		Logger::Get().Writeln(Logger::Level::kLog, __VA_ARGS__); \
 	} \
 } \
 while (0) \
@@ -196,7 +200,7 @@ do \
 	if (COND) \
 	{ \
 		using Lexi::Logger; \
-		Logger::Get().Writeln(Logger::Level::Err, __VA_ARGS__); \
+		Logger::Get().Writeln(Logger::Level::kError, __VA_ARGS__); \
 	} \
 } \
 while (0) \

@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.hpp
+ * @file   QuitCommand.cpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Command that exits the application.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,60 +28,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_LEXISTD_HPP
-#define LEXI_LEXISTD_HPP
+#include "LexiStd.hpp"
+#include "QuitCommand.hpp"
 
-// Common library headers:
-#include <tinyxml2.h>
-// Common standard library headers:
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <format>
-#include <memory>
-#include <new>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <list>
-#include <map>
-#include <unordered_map>
-#include <span>
-#include <type_traits>
-#include <concepts>
-#include <numeric>
-#include <numbers>
-#include <limits>
-#include <algorithm>
-#include <compare>
-#include <chrono>
-#include <ratio>
-#include <exception>
-#include <source_location>
-#include <mutex>
-// Common project headers:
-#include "Utils/Types.hpp"
-#include "Utils/Interfaces.hpp"
-#include "Utils/Templates.hpp"
-#include "Utils/Utils.hpp"
-#include "Utils/Exception.hpp"
-#include "Utils/Logger.hpp"
-#include "Utils/Config.hpp"
-// All project headers:
-#include "Commands/ICommand.hpp"
-#include "Commands/QuitCommand.hpp"
+using Lexi::QuitCommand, Lexi::CommandResult;
 
-//! Primary namespace.
-namespace Lexi
+QuitCommand::QuitCommand(/* SaveCommand & */)
 {
-} // End namespace (Lexi)
+}
 
-#endif /* !LEXI_LEXISTD_HPP */
+CommandResult QuitCommand::VExecute(void)
+{
+	/**
+	 * if (document is modified)
+	 * {
+	 *	 save->Execute();
+	 * }
+	 * quit the application
+	 */
+	LEXI_MSG("Quitting application...");
+	return CommandResult::kSuccess;
+}
+
+CommandResult QuitCommand::VUnexecute(void)
+{
+	return CommandResult::kSuccess;
+}
+
+bool QuitCommand::VIsReversible(void) const
+{
+	return false;
+}
+

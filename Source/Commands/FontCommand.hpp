@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   Config.hpp
+ * @file   FontCommand.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Application configuration.
+ * @brief  Command that applies a font to selected glyphs.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,37 +28,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_CONFIG_HPP
-#define LEXI_CONFIG_HPP
+#ifndef LEXI_FONTCOMMAND_HPP
+#define LEXI_FONTCOMMAND_HPP
 
 namespace Lexi
 {
-	class Config;
-	LEXI_DECLARE_PTR(Config);
-
 	/**
-	 * Configuration manager singleton.
+	 * Command that applies a font to selected glyphs.
 	 */
-	class Config final : public INonCopyable, public INonMoveable
+	class FontCommand final : public ICommand
 	{
-		static UniqueConfigPtr s_pInstance; //!< Singleton instance
-
-		std::string m_programName;
-		std::string m_description;
-		std::string m_longDesc;
 	public:
-		Config(void);
-		//! Load configuration from XML document.
-		void Load(tinyxml2::XMLElement *pRoot);
-		//! Save configuration changes to XML document.
-		void Save(tinyxml2::XMLElement *pRoot);
-		// Accessors:
-		//! Retrieve singleton instance.
-		static Config &Get(void);
-		const std::string &GetProgramName(void) const;
-		const std::string &GetDescription(void) const;
-		const std::string &GetLongDescription(void) const;
-	};
-}
+		FontCommand(void);
 
-#endif /* !LEXI_CONFIG_HPP */
+		CommandResult VExecute(void) override;
+		CommandResult VUnexecute(void) override;
+		bool VIsReversible(void) const override;
+	};
+} // End namespace (Lexi)
+
+#endif /* !LEXI_FONTCOMMAND_HPP */

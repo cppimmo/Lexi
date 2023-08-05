@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   LexiStd.hpp
+ * @file   Interfaces.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Standard project items.
+ * @brief  Useful interfaces.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,60 +28,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_LEXISTD_HPP
-#define LEXI_LEXISTD_HPP
+#ifndef LEXI_INTERFACES_HPP
+#define LEXI_INTERFACES_HPP
 
-// Common library headers:
-#include <tinyxml2.h>
-// Common standard library headers:
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <format>
-#include <memory>
-#include <new>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <list>
-#include <map>
-#include <unordered_map>
-#include <span>
-#include <type_traits>
-#include <concepts>
-#include <numeric>
-#include <numbers>
-#include <limits>
-#include <algorithm>
-#include <compare>
-#include <chrono>
-#include <ratio>
-#include <exception>
-#include <source_location>
-#include <mutex>
-// Common project headers:
-#include "Utils/Types.hpp"
-#include "Utils/Interfaces.hpp"
-#include "Utils/Templates.hpp"
-#include "Utils/Utils.hpp"
-#include "Utils/Exception.hpp"
-#include "Utils/Logger.hpp"
-#include "Utils/Config.hpp"
-// All project headers:
-#include "Commands/ICommand.hpp"
-#include "Commands/QuitCommand.hpp"
-
-//! Primary namespace.
 namespace Lexi
 {
+	//! Interface for non-copyable class types.
+	class INonCopyable
+	{
+	public:
+		INonCopyable(void) = default;
+		INonCopyable(const INonCopyable &) = delete;
+		INonCopyable &operator=(const INonCopyable &) = delete;
+		virtual ~INonCopyable(void) = default;
+	};
+	//! Interface for non-moveable class types.
+	class INonMoveable
+	{
+	public:
+		INonMoveable(void) = default;
+		INonMoveable(INonMoveable &&) = delete;
+		INonMoveable &operator=(INonMoveable &&) = delete;
+		virtual ~INonMoveable(void) = default;
+	};
+	//! Retrieve string representation of an object.
+	class IStringable
+	{
+	public:
+		virtual ~IStringable(void) = default;
+		virtual std::string VToString(void) const = 0;
+	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_LEXISTD_HPP */
+#endif /* !LEXI_INTERFACES_HPP */

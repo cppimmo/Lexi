@@ -30,30 +30,10 @@
  ******************************************************************************/
 #include "LexiStd.hpp"
 
-#include <gtk/gtk.h>
+#include <X11/Xlib.h>
 
 using namespace Lexi;
 using namespace tinyxml2;
-
-static void Click(GtkWidget *pWidget, gpointer pUserData)
-{
-	LEXI_MSG("Button clicked!");
-}
-
-static void Activate(GtkApplication *pApp,
-					 gpointer pUserData)
-{
-	GtkWidget *pWindow = gtk_application_window_new(pApp);
-
-	gtk_window_set_title(GTK_WINDOW(pWindow), "sample_doc.lexi - Lexi");
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 800, 600);
-
-	GtkWidget *pButton = gtk_button_new_with_label("Hello, world!");
-	g_signal_connect(pButton, "clicked", G_CALLBACK(Click), NULL);
-	gtk_window_set_child(GTK_WINDOW(pWindow), pButton);
-	
-	gtk_window_present(GTK_WINDOW(pWindow));
-}
 
 static XMLElement *LoadConfig(XMLDocument &xmlDoc);
 
@@ -73,21 +53,62 @@ int main(int numArgs, char *pArgs[]) try
 	LEXI_LOG("Program name: {}", Config::Get().GetProgramName());
 	LEXI_LOG("Description: {}", Config::Get().GetDescription());
 	LEXI_LOG("Long description: {}", Config::Get().GetLongDescription());
+	LEXI_LOG("Operating system: {}", Config::OperatingSystemToString(Config::Get().GetOperatingSystem()));
+	
+	ICommand *pCommand = LEXI_NEW QuitCommand;
+	pCommand->VExecute();
+	delete pCommand;
+	
+	Display *pDisplay = nullptr;
+	Window window;
+	XEvent event;
+	constexpr std::string_view kMESSAGE = "Hello, world!";
+	int defaultScreen = 0;
 
-	GtkApplication *pApp = nullptr;
-	int status = EXIT_SUCCESS;
+	pDisplay = XOpenDisplay(nullptr);
+	if (!pDisplay)
+	{
+		LEXI_THROW("Cannot open display!");
+	}
 
-	pApp = gtk_application_new("lexi",
-							   G_APPLICATION_DEFAULT_FLAGS);
-	g_signal_connect(pApp, "activate",
-					 G_CALLBACK(Activate), NULL);
-	status = g_application_run(G_APPLICATION(pApp), numArgs, pArgs);
-	g_object_unref(pApp);
+	defaultScreen = DefaultScreen(pDisplay);
 
+	window = XCreateSimpleWindow(pDisplay, RootWindow(pDisplay, defaultScreen),
+								 10, 10, 800, 600, 1,
+								 BlackPixel(pDisplay, defaultScreen),
+								 WhitePixel(pDisplay, defaultScreen));
+
+	XSelectInput(pDisplay, window, ExposureMask | KeyPressMask);
+
+	XMapWindow(pDisplay, window);
+
+	bool bRunning = true;
+	while (bRunning)
+	{
+		XNextEvent(pDisplay, &event);
+
+		switch (event.type)
+		{
+		case Expose:
+			XFillRectangle(pDisplay, window,
+						   DefaultGC(pDisplay, defaultScreen),
+						   20, 20, 10, 10);
+			XDrawString(pDisplay, window,
+						DefaultGC(pDisplay, defaultScreen),
+						50, 50, kMESSAGE.data(), kMESSAGE.size());
+			break;
+		case KeyPress:
+			bRunning = false;
+			break;
+		}
+	}
+
+	XCloseDisplay(pDisplay);
+	
 	Config::Get().Save(pRoot);
 	
 	LEXI_LOG("Quitting application...");
-	return status;
+	return 0;
 }
 catch (const Exception &kExcept)
 {
@@ -107,3 +128,4 @@ XMLElement *LoadConfig(XMLDocument &xmlDoc)
 	LEXI_THROW_IF(!pRoot, "No root config element!");
 	return pRoot;
 }
+

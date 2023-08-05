@@ -53,12 +53,9 @@ function(create_source_group SRC_FILES)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Source Files" FILES ${SRC_FILES})
 endfunction()
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK4 REQUIRED gtk4)
-
-include_directories(${GTK4_INCLUDE_DIRS})
-link_directories(${GTK4_LIBRARY_DIRS})
-add_definitions(${GTK4_CFLAGS_OTHER})
+find_package(X11 REQUIRED)
+link_libraries(${X11_LIBRARIES})
+include_directories(${X11_INCLUDE_DIR})
 
 set(SRC_DIR "Source")
 set(TINYXML2_DIR "Lib/tinyxml2")
@@ -70,7 +67,6 @@ get_sources_match_list(SRC_FILES "${SRC_DIR}")
 list(APPEND SRC_FILES "${TINYXML2_DIR}/tinyxml2.h" "${TINYXML2_DIR}/tinyxml2.cpp") 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "Source Files" FILES ${SRC_FILES})
 target_sources(Lexi PRIVATE ${SRC_FILES})
-target_link_libraries(Lexi ${GTK4_LIBRARIES})
 
 add_custom_command(TARGET Lexi PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy

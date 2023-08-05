@@ -34,6 +34,7 @@
 using Lexi::Logger;
 // Initialize static class instance:
 Lexi::UniqueLoggerPtr Logger::s_pInstance;
+std::mutex Logger::s_mutex;
 
 Logger::Logger(void)
 	: m_bEnabled(true),
@@ -117,12 +118,11 @@ void Logger::RedirectLevelTo(Level level, std::ostream &outStream)
 
 Logger &Logger::Get(void)
 {
-	static bool c_bInitialized = false;
-	
-	if (!c_bInitialized)
+	// Uses RAII to unlock after destruction.
+	std::lock_guard<std::mutex> lockGuard(s_mutex);
+	if (!s_pInstance)
 	{
-		s_pInstance = std::make_unique<Logger>();
-		c_bInitialized = true;
+		s_pInstance = std::unique_ptr<Logger>(LEXI_NEW Logger);
 	}
 
 	return *s_pInstance.get();
@@ -182,11 +182,11 @@ std::ostream &Logger::GetLevelStream(Level level)
 {
 	switch (level)
 	{
-	case Level::Msg:
+	case Level::kMessage:
 		return m_msgStream;
-	case Level::Log:
+	case Level::kLog:
 		return m_logStream;
-	case Level::Err:
+	case Level::kError:
 		return m_errStream;
 	default:
 		LEXI_THROW("Invalid level.");

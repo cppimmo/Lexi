@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   CommandManager.hpp
+ * @file   XWindowImpl.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Manager of requests.
+ * @brief  Window system implementation for X11.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,37 +28,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_COMMANDMANAGER_HPP
-#define LEXI_COMMANDMANAGER_HPP
+#ifndef LEXI_XWINDOWIMPL_HPP
+#define LEXI_XWINDOWIMPL_HPP
 
 namespace Lexi
 {
-	class CommandManager;
-	LEXI_DECLARE_PTR(CommandManager);
-
-	using CommandList = std::list<ICommand *>;
 	/**
-	 * Manager of requests.
+	 * Window system implementation interface for X11.
 	 */
-	class CommandManager
+	class XWindowImpl final : public IWindowImpl
 	{
-		CommandList m_commands; //!< List of executed commands
-		CommandList::iterator m_currIter; //!< Most recently executed command
+		::Display *m_pDisplay;
+		::Window *m_window;
+		::GC m_graphicsContext;
 	public:
-		CommandManager(void);
-		// TODO: How should a command object be placed in CommandList (ptr, ref, etc.)?
-		CommandResult Execute(ICommand &command);
-		void Undo(void);
-		void Redo(void);
-		//! Empty the command history.
-		void Clear(void);
+		XWindowImpl(void);
+		~XWindowImpl(void);
+
+		void VDrawLine(void) override { }
+		void VDrawRect(void) override { }
+		void VDrawPolygon(void) override { }
+		void VDrawText(void) override { }
+
+		void VFillRect(void) override { }
+		void VFillPolygon(void) override { }
 	private:
-		//! Determine if the previous command is capable of being undone.
-		bool CanUndo(void) const;
-		//! Determine if the previous command is capable of being redone.
-		bool CanRedo(void) const;
+		
 	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_COMMANDMANAGER_HPP */
+#endif /* !LEXI_XWINDOWIMPL_HPP */
 

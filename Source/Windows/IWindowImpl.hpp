@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   CommandManager.hpp
+ * @file   IWindowImpl.hpp
  * @author Brian Hoffpauir
  * @date   02.08.2023
- * @brief  Manager of requests.
+ * @brief  Window system implementation interface.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,37 +28,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_COMMANDMANAGER_HPP
-#define LEXI_COMMANDMANAGER_HPP
+#ifndef LEXI_IWINDOWIMPL_HPP
+#define LEXI_IWINDOWIMPL_HPP
 
 namespace Lexi
 {
-	class CommandManager;
-	LEXI_DECLARE_PTR(CommandManager);
-
-	using CommandList = std::list<ICommand *>;
 	/**
-	 * Manager of requests.
+	 * Window system implementation interface.
 	 */
-	class CommandManager
+	class IWindowImpl
 	{
-		CommandList m_commands; //!< List of executed commands
-		CommandList::iterator m_currIter; //!< Most recently executed command
 	public:
-		CommandManager(void);
-		// TODO: How should a command object be placed in CommandList (ptr, ref, etc.)?
-		CommandResult Execute(ICommand &command);
-		void Undo(void);
-		void Redo(void);
-		//! Empty the command history.
-		void Clear(void);
-	private:
-		//! Determine if the previous command is capable of being undone.
-		bool CanUndo(void) const;
-		//! Determine if the previous command is capable of being redone.
-		bool CanRedo(void) const;
+		virtual ~IWindowImpl(void) = default;
+
+		virtual void VDrawLine(void) = 0;
+		virtual void VDrawRect(void) = 0;
+		virtual void VDrawPolygon(void) = 0;
+		virtual void VDrawText(void) = 0;
+
+		virtual void VFillRect(void) = 0;
+		virtual void VFillPolygon(void) = 0;
 	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_COMMANDMANAGER_HPP */
+#endif /* !LEXI_IWINDOWIMPL_HPP */
 

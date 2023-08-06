@@ -78,6 +78,7 @@ int main(int numArgs, char *pArgs[]) try
 								 BlackPixel(pDisplay, defaultScreen),
 								 WhitePixel(pDisplay, defaultScreen));
 
+	XStoreName(pDisplay, window, Config::Get().GetProgramName().c_str());
 	XSelectInput(pDisplay, window, ExposureMask | KeyPressMask);
 
 	XMapWindow(pDisplay, window);

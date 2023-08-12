@@ -35,7 +35,10 @@ namespace Lexi
 {
 	class Logger;
 	LEXI_DECLARE_PTR(Logger);
-	
+
+	// See: https://stackoverflow.com/a/52296294
+	using OStreamDeleter = std::function<void (std::ostream *)>;
+	using OStreamPtr = std::unique_ptr<std::ostream, OStreamDeleter>;
 	/**
 	 * Logger singleton.
 	 */
@@ -47,6 +50,12 @@ namespace Lexi
 			kMessage, /**< Level for user messages */
 			kLog, /**< Level for debug messages */
 			kError /**< Level for error messages */
+		};
+
+		enum struct Redirection
+		{
+			kShared, /**< Maintain references to other redirections to a single level */
+			kExclusive /**< Redirect exclusively to a single level */
 		};
 	private:
 		static constexpr std::size_t kDEFAULT_WRAP_COUNT = 80; //!< Default line wrap count
@@ -60,6 +69,7 @@ namespace Lexi
 		std::ostream m_msgStream; //!< Message output stream
 		std::ostream m_logStream; //!< Logging output stream
 		std::ostream m_errStream; //!< Error output stream
+		std::list<OStreamPtr> m_streamPtrs; //!< Shared stream pointers
 	public:
 		//! Initialize logger with the given XML configuration.
 		void Init(tinyxml2::XMLElement *pRoot);
@@ -68,15 +78,15 @@ namespace Lexi
 		//! Disable log output.
 		bool Disable(void) noexcept;
 		//! Write output to stream at level.
-		template <typename... Args>
-		std::ostream &Write(Level level, std::string_view format, Args&&... args);
+		template <typename ...Args>
+		std::ostream &Write(Level level, std::string_view format, Args &&...args);
 		//! Write output to stream at level with an appended newline.
-		template <typename... Args>	
-		std::ostream &Writeln(Level level, std::string_view format, Args&&... args);
+		template <typename ...Args>	
+		std::ostream &Writeln(Level level, std::string_view format, Args &&...args);
 		//! Flush output stream at level.
 		void Flush(Level level);
 		//! Redirect output stream at level to outStream.
-		void RedirectLevelTo(Level level, std::ostream &outStream);
+		void RedirectLevelTo(Redirection redir, Level level, std::ostream &outStream);
 		// Accessors:
 		//! Retrieve singleton instance.
 		static Logger &Get(void);
@@ -97,8 +107,8 @@ namespace Lexi
 		void WrapLines(std::string_view input, std::ostringstream &outStrStream) const;
 	};
 
-	template <typename... Args>
-	inline std::ostream &Logger::Write(Level level, std::string_view format, Args&&... args)
+	template <typename ...Args>
+	inline std::ostream &Logger::Write(Level level, std::string_view format, Args &&...args)
 	{		
 		std::ostream &outStream = GetLevelStream(level);
 		if (!m_bEnabled)
@@ -125,8 +135,8 @@ namespace Lexi
 		return outStream;
 	}
 	
-	template <typename... Args>	
-	inline std::ostream &Logger::Writeln(Level level, std::string_view format, Args&&... args)
+	template <typename ...Args>	
+	inline std::ostream &Logger::Writeln(Level level, std::string_view format, Args &&...args)
 	{
 		// std::forward<Args>(args...);
 		return Write(level, format, args...) << '\n';

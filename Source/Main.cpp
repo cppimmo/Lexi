@@ -39,21 +39,23 @@ static XMLElement *LoadConfig(XMLDocument &xmlDoc);
 
 int main(int numArgs, char *pArgs[]) try
 {
-	//std::ofstream outFile(Logger::Get().GetSystemTime(true).value() + "_lexi_log.txt");
-	//Logger::Get().RedirectLevelTo(Logger::Level::Msg, outFile);
-	//Logger::Get().RedirectLevelTo(Logger::Level::Err, outFile);
 	XMLDocument xmlDoc;
 	auto *pRoot = LoadConfig(xmlDoc);
-	
-	Config::Get().Load(pRoot);
-	Logger::Get().Init(pRoot->FirstChildElement("Logging"));
+
+	Config &config = Config::Get();
+	Logger &logger = Logger::Get();
+	config.Load(pRoot);
+	logger.Init(pRoot->FirstChildElement("Logging"));
+	//std::ofstream outFile(logger.GetSystemTime(true).value() + "_lexi_log.txt");
+	//logger.RedirectLevelTo(Logger::Level::Msg, outFile);
+	//logger.RedirectLevelTo(Logger::Level::Err, outFile);
 	
 	LEXI_LOG("Starting application...");
 	
-	LEXI_LOG("Program name: {}", Config::Get().GetProgramName());
-	LEXI_LOG("Description: {}", Config::Get().GetDescription());
-	LEXI_LOG("Long description: {}", Config::Get().GetLongDescription());
-	LEXI_LOG("Operating system: {}", Config::OperatingSystemToString(Config::Get().GetOperatingSystem()));
+	LEXI_LOG("Program name: {}", config.GetProgramName());
+	LEXI_LOG("Description: {}", config.GetDescription());
+	LEXI_LOG("Long description: {}", config.GetLongDescription());
+	LEXI_LOG("Operating system: {}", Config::OperatingSystemToString(config.GetOperatingSystem()));
 	
 	ICommand *pCommand = LEXI_NEW QuitCommand;
 	pCommand->VExecute();
@@ -78,7 +80,7 @@ int main(int numArgs, char *pArgs[]) try
 								 BlackPixel(pDisplay, defaultScreen),
 								 WhitePixel(pDisplay, defaultScreen));
 
-	XStoreName(pDisplay, window, Config::Get().GetProgramName().c_str());
+	XStoreName(pDisplay, window, config.GetProgramName().c_str());
 	XSelectInput(pDisplay, window, ExposureMask | KeyPressMask);
 
 	XMapWindow(pDisplay, window);
@@ -106,7 +108,7 @@ int main(int numArgs, char *pArgs[]) try
 
 	XCloseDisplay(pDisplay);
 	
-	Config::Get().Save(pRoot);
+	config.Save(pRoot);
 	
 	LEXI_LOG("Quitting application...");
 	return 0;

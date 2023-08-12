@@ -111,8 +111,16 @@ void Logger::Flush(Level level)
 	GetLevelStream(level).flush();
 }
 
-void Logger::RedirectLevelTo(Level level, std::ostream &outStream)
+void Logger::RedirectLevelTo(Redirection redir, Level level, std::ostream &outStream)
 {
+	switch (redir)
+	{
+	case Redirection::kShared:
+		break;
+	case Redirection::kExclusive:
+		break;
+	}
+	
 	GetLevelStream(level).rdbuf(outStream.rdbuf());
 }
 

@@ -49,25 +49,41 @@ Config::Config(void)
 
 void Config::Load(XMLElement *pRoot)
 {
+	// Parse application configuration:
 	for (auto *pNode = pRoot->FirstChildElement(); pNode; pNode = pNode->NextSiblingElement())
 	{
 		const std::string kName = pNode->Name();
 
 		if (kName == "ProgramName")
 		{
-			m_programName = pNode->GetText();
+			m_app.programName = pNode->GetText();
 		}
 		else if (kName == "Description")
 		{
-			m_description = pNode->GetText();
+			m_app.description = pNode->GetText();
 		}
 		else if (kName == "LongDescription")
 		{
-			m_longDesc = pNode->GetText();
+			m_app.longDesc = pNode->GetText();
 		}
 		else if (kName == "OperatingSystem")
 		{
-			m_operatingSystem = StringToOperatingSystem(pNode->GetText());
+			m_app.OS = StringToOperatingSystem(pNode->GetText());
+		}
+	}
+	// Parse user configuration:
+	XMLElement *pUser = pRoot->FirstChildElement("User");
+	for (auto *pNode = pUser->FirstChildElement(); pNode; pNode = pNode->NextSiblingElement())
+	{
+		const std::string kName = pNode->Name();
+
+		if (kName == "AutoSave")
+		{
+			m_user.bAutoSave = pNode->BoolAttribute("value");
+		}
+		else if (kName == "WordDict")
+		{
+			m_user.wordDictPath = pNode->GetText();
 		}
 	}
 }
@@ -88,29 +104,20 @@ Config &Config::Get(void)
 	return *s_pInstance.get();
 }
 
-const std::string &Config::GetProgramName(void) const
+const Config::App &Config::GetApp(void) const noexcept
 {
-	return m_programName;
+	return m_app;
 }
 
-const std::string &Config::GetDescription(void) const
+const Config::User &Config::GetUser(void) const noexcept
 {
-	return m_description;
-}
-
-const std::string &Config::GetLongDescription(void) const
-{
-	return m_longDesc;
-}
-
-Config::OperatingSystem Config::GetOperatingSystem(void) const noexcept
-{
-	return m_operatingSystem;
+	return m_user;
 }
 
 Config::OperatingSystem Config::StringToOperatingSystem(std::string_view system)
 {
 	auto iter = s_systems.find(system);
+	
 	if (iter != s_systems.end())
 	{
 		return iter->second;
@@ -120,3 +127,4 @@ Config::OperatingSystem Config::StringToOperatingSystem(std::string_view system)
 		LEXI_THROW("Unsupported operating system!");
 	}
 }
+

@@ -31,3 +31,29 @@
 #include "LexiStd.hpp"
 #include "Utils.hpp"
 
+bool Lexi::IsStringAlpha(std::string_view input)
+{
+	return std::ranges::all_of(input,
+							   [](char ch) -> bool
+							   {
+								   return std::isalpha(static_cast<unsigned char>(ch)) != 0;
+							   });
+}
+
+template <std::ranges::range Range>
+static auto ToString(Range &&range)
+{
+	auto commonRange = range | std::views::common;
+	return std::string(std::begin(commonRange), std::end(commonRange));
+}
+
+std::string Lexi::StringToLower(std::string_view input)
+{
+	auto toLower = [](unsigned char ch)
+	{
+		return std::tolower(ch);
+	};
+	
+	return ToString(std::views::transform(input, toLower));
+}
+

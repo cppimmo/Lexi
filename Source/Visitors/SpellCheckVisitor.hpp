@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   Utils.hpp
+ * @file   SpellCheckVisitor.hpp
  * @author Brian Hoffpauir
- * @date   02.08.2023
- * @brief  Utility types & functions.
+ * @date   14.08.2023
+ * @brief  Visitor for checking spelling of glyphs.
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,35 +28,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_UTILS_HPP
-#define LEXI_UTILS_HPP
-
-// Useful macros:
-#if defined(_DEBUG) // Only on Windows IIRC
-#define LEXI_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__) // Use overloaded debug new operator
-#else
-#define LEXI_NEW new
-#endif
-
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(X) if (X) { delete X; X = nullptr; }
-#endif
-
-#ifndef SAFE_DELETE_ARRAY
-#define SAFE_DELETE_ARRAY(X) if (X) { delete[] X; X = nullptr; }
-#endif
-
-#define LEXI_DECLARE_PTR(TYPE) \
-	using Unique ## TYPE ## Ptr = std::unique_ptr<TYPE>; \
-	using Strong ## TYPE ## Ptr = std::shared_ptr<TYPE>; \
-	using Weak ## TYPE ## Ptr = std::weak_ptr<TYPE>; \
+#ifndef LEXI_SPELLCHECKVISITOR_HPP
+#define LEXI_SPELLCHECKVISITOR_HPP
 
 namespace Lexi
 {
-	//! Determines if a string has all alphabetic characters.
-	bool IsStringAlpha(std::string_view input);
-	//! Convert a string to all lowercase letters.
-	std::string StringToLower(std::string_view input);
+	class SpellCheckVisitor;
+	LEXI_DECLARE_PTR(SpellCheckVisitor);
+	
+	//! Visitor for checking spelling of glyphs.
+	class SpellCheckVisitor : public IVisitor
+	{
+	public:
+		using Word = std::string;
+		using WordVector = std::vector<Word>;
+	private:
+		Word m_currWord; //!< The current word
+		WordVector m_misspellings; //!< Currently misspelled words
+		WordVector m_words; //!< Dictionary (or word list)
+	public:
+		// TODO: Maintain reference to document structure?
+		SpellCheckVisitor(void);
+		// IVisitor overrides:
+		void VVisitCharacter(char ch /* Character *pChar */) override;
+		void VVisitRow(/* Row *pRow */) override;
+		void VVisitImage(/* Image *pImage */) override;
+		// Accessors:
+		const WordVector &GetMisspellings(void) const;
+		const WordVector &GetWords(void) const;
+	protected:
+		virtual bool VIsMisspelled(const Word &kWord);
+	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_UTILS_HPP */
+#endif /* !LEXI_SPELLCHECKVISITOR_HPP */
+

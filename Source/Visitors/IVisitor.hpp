@@ -1,8 +1,8 @@
 /*******************************************************************************
- * @file   Utils.hpp
+ * @file   IVisitor.hpp
  * @author Brian Hoffpauir
- * @date   02.08.2023
- * @brief  Utility types & functions.
+ * @date   14.08.2023
+ * @brief  Visitor interface
  *
  * Copyright (c) 2023, Brian Hoffpauir All rights reserved.
  *
@@ -28,35 +28,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#ifndef LEXI_UTILS_HPP
-#define LEXI_UTILS_HPP
-
-// Useful macros:
-#if defined(_DEBUG) // Only on Windows IIRC
-#define LEXI_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__) // Use overloaded debug new operator
-#else
-#define LEXI_NEW new
-#endif
-
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(X) if (X) { delete X; X = nullptr; }
-#endif
-
-#ifndef SAFE_DELETE_ARRAY
-#define SAFE_DELETE_ARRAY(X) if (X) { delete[] X; X = nullptr; }
-#endif
-
-#define LEXI_DECLARE_PTR(TYPE) \
-	using Unique ## TYPE ## Ptr = std::unique_ptr<TYPE>; \
-	using Strong ## TYPE ## Ptr = std::shared_ptr<TYPE>; \
-	using Weak ## TYPE ## Ptr = std::weak_ptr<TYPE>; \
+#ifndef LEXI_IVISITOR_HPP
+#define LEXI_IVISITOR_HPP
 
 namespace Lexi
 {
-	//! Determines if a string has all alphabetic characters.
-	bool IsStringAlpha(std::string_view input);
-	//! Convert a string to all lowercase letters.
-	std::string StringToLower(std::string_view input);
+	class IVisitor;
+	LEXI_DECLARE_PTR(IVisitor);
+	//! Interface for visiting glyphs in the document structure.
+	class IVisitor
+	{
+	public:
+		virtual ~IVisitor(void) = default;
+
+		virtual void VVisitCharacter(char ch /* Character *pChar */) = 0;
+		virtual void VVisitRow(/* Row *pRow */) = 0;
+		virtual void VVisitImage(/* Image *pImage */) = 0;
+	};
 } // End namespace (Lexi)
 
-#endif /* !LEXI_UTILS_HPP */
+#endif /* !LEXI_IVISITOR_HPP */
+

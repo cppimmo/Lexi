@@ -14,7 +14,8 @@
   <OperatingSystem>Linux</OperatingSystem>
   <!-- User options -->
   <User>
-	<SaveAutomatically value="true"/>
+	<AutoSave value="true"/>
+	<WordDict>Words.txt</WordDict>
   </User>
   <Logging>
 	<Enabled value="true"/>

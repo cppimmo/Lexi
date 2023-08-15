@@ -68,6 +68,8 @@
 #include <source_location>
 #include <mutex>
 #include <filesystem>
+#include <functional>
+#include <ranges>
 // Common project headers:
 #include "Utils/Types.hpp"
 #include "Utils/Interfaces.hpp"
@@ -79,6 +81,8 @@
 // All project headers:
 #include "Commands/ICommand.hpp"
 #include "Commands/QuitCommand.hpp"
+#include "Visitors/IVisitor.hpp"
+#include "Visitors/SpellCheckVisitor.hpp"
 
 //! Primary namespace.
 namespace Lexi

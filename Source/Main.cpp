@@ -52,15 +52,27 @@ int main(int numArgs, char *pArgs[]) try
 	
 	LEXI_LOG("Starting application...");
 	
-	LEXI_LOG("Program name: {}", config.GetProgramName());
-	LEXI_LOG("Description: {}", config.GetDescription());
-	LEXI_LOG("Long description: {}", config.GetLongDescription());
-	LEXI_LOG("Operating system: {}", Config::OperatingSystemToString(config.GetOperatingSystem()));
+	LEXI_LOG("Program name: {}", config.GetApp().programName);
+	LEXI_LOG("Description: {}", config.GetApp().description);
+	LEXI_LOG("Long description: {}", config.GetApp().longDesc);
+	LEXI_LOG("Operating system: {}", Config::OperatingSystemToString(config.GetApp().OS));
 	
-	ICommand *pCommand = LEXI_NEW QuitCommand;
+	UniqueICommandPtr pCommand = std::make_unique<QuitCommand>();
 	pCommand->VExecute();
-	delete pCommand;
-	
+
+	UniqueSpellCheckVisitorPtr pSpellChecker = std::make_unique<SpellCheckVisitor>();
+	std::string test = "What's up dood?";
+
+	for (auto ch : test)
+	{
+		pSpellChecker->VVisitCharacter(ch);
+	}
+
+	for (const auto &kMisspelling : pSpellChecker->GetMisspellings())
+	{
+		LEXI_LOG("Misspelled: '{}'", kMisspelling);
+	}
+
 	Display *pDisplay = nullptr;
 	Window window;
 	XEvent event;
@@ -80,7 +92,7 @@ int main(int numArgs, char *pArgs[]) try
 								 BlackPixel(pDisplay, defaultScreen),
 								 WhitePixel(pDisplay, defaultScreen));
 
-	XStoreName(pDisplay, window, config.GetProgramName().c_str());
+	XStoreName(pDisplay, window, config.GetApp().programName.c_str());
 	XSelectInput(pDisplay, window, ExposureMask | KeyPressMask);
 
 	XMapWindow(pDisplay, window);

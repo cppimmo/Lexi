@@ -116,14 +116,14 @@ namespace Lexi
 			return outStream;
 		}
 		
-		std::ostringstream outStrStream;
+		std::ostringstream fmtStream;
 		if (m_bWrapLines)
 		{
-			WrapLines(format, outStrStream);
+			WrapLines(format, fmtStream);
 		}
 		else
 		{
-			outStrStream << format;
+			fmtStream << format;
 		}
 		
 		auto timeStr = GetSystemTime();
@@ -131,15 +131,17 @@ namespace Lexi
 		{
 			outStream << '[' << *timeStr << ']';
 		}
-		outStream << '[' << GetLevelString(level) << "]: " << std::vformat(outStrStream.str(), std::make_format_args(args...));
+
+		outStream << '[' << GetLevelString(level) << "]: ";
+		std::ostreambuf_iterator<char> outIter(outStream);
+		std::vformat_to(outIter, fmtStream.str(), std::make_format_args(args...));
 		return outStream;
 	}
 	
 	template <typename ...Args>	
 	inline std::ostream &Logger::Writeln(Level level, std::string_view format, Args &&...args)
 	{
-		// std::forward<Args>(args...);
-		return Write(level, format, args...) << '\n';
+		return Write(level, format, std::forward<Args>(args)...) << '\n';
 	}
 
 	inline constexpr std::string_view Logger::GetLevelString(Level level) noexcept

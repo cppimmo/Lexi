@@ -49,15 +49,27 @@ namespace Lexi
 			kMacOS,
 			kFreeBSD
 		};
+		//! Configuration options set by distributor.
+		struct App
+		{
+			std::string programName;
+			std::string description;
+			std::string longDesc;
+			OperatingSystem OS;
+		};
+		//! Configuration options set by user.
+		struct User
+		{
+			bool bAutoSave;
+			std::string wordDictPath;
+		};
 	private:
 		static UniqueConfigPtr s_pInstance; //!< Singleton instance
 		static std::mutex s_mutex;
 		static std::unordered_map<std::string_view, OperatingSystem> s_systems;
-		
-		std::string m_programName;
-		std::string m_description;
-		std::string m_longDesc;
-		OperatingSystem m_operatingSystem;
+
+		App m_app; //!< Application settings
+		User m_user; //!< User settings
 	public:
 		//! Load configuration from XML document.
 		void Load(tinyxml2::XMLElement *pRoot);
@@ -66,11 +78,8 @@ namespace Lexi
 		// Accessors:
 		//! Retrieve singleton instance.
 		static Config &Get(void);
-		const std::string &GetProgramName(void) const;
-		const std::string &GetDescription(void) const;
-		const std::string &GetLongDescription(void) const;
-		OperatingSystem GetOperatingSystem(void) const noexcept;
-
+		const App &GetApp(void) const noexcept;
+		const User &GetUser(void) const noexcept;
 		static constexpr std::string_view OperatingSystemToString(OperatingSystem system) noexcept;
 	private:
 		// Hide constructor so instances cannot be created directly.
@@ -100,3 +109,4 @@ namespace Lexi
 } // End namespace (Lexi)
 
 #endif /* !LEXI_CONFIG_HPP */
+

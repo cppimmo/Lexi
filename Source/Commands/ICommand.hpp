@@ -33,6 +33,8 @@
 
 namespace Lexi
 {
+	class ICommand;
+	LEXI_DECLARE_PTR(ICommand);
 	//! Execution result enumeration.
 	enum struct CommandResult
 	{

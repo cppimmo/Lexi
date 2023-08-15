@@ -70,4 +70,5 @@ target_sources(Lexi PRIVATE ${SRC_FILES})
 
 add_custom_command(TARGET Lexi PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_SOURCE_DIR}/Config.xml $<TARGET_FILE_DIR:Lexi>)
+  ${CMAKE_SOURCE_DIR}/Config.xml $<TARGET_FILE_DIR:Lexi>
+  ${CMAKE_SOURCE_DIR}/Words.txt $<TARGET_FILE_DIR:Lexi>)
